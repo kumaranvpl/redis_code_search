@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 
 class CodeSearch:
@@ -26,7 +27,7 @@ class CodeSearch:
                 searchlines = f.readlines()
             for i, line in enumerate(searchlines):
                 if search_word in line:
-                    print "Keyword %s found in file %s on line number %s" % (search_word, files, i+1)
+                    print "Keyword '%s' found in file '%s' on line number %s" % (search_word, files, i+1)
                     for l in searchlines[i:i + 3]: print l,
                     print
 
@@ -35,4 +36,6 @@ if __name__ == "__main__":
     #print "hello"
     search_word = str(sys.argv[1])
     redis_search = CodeSearch()
+    start_time = time.time()
     redis_search.redis_search(search_word)
+    print "Search took %s seconds" % (time.time() - start_time)
