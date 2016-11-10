@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import time
 
@@ -17,25 +18,38 @@ class CodeSearch:
                 files_list.append(os.path.join(root, filename))
         return files_list
 
-    def _search_word_in_file(self, filename, word):
+    def _search_word_in_file(self, filename, word, regexp=None):
         """if search_word in open(files).read():
                         print files"""
         with open(filename, "r") as f:
             searchlines = f.readlines()
         for i, line in enumerate(searchlines):
-            if word in line:
-                print "Keyword '%s' found in file '%s' on line number %s" % (word, filename, i + 1)
-                for l in searchlines[i:i + 3]: print l,
-                print
+            if regexp:
+                found = re.search(regexp, line)
+                if found:
+                    print "Keyword '%s' found in file '%s' on line number %s" % (word, filename, i + 1)
+                    for l in searchlines[i:i + 3]: print l,
+                    print
+            else:
+                if word in line:
+                    print "Keyword '%s' found in file '%s' on line number %s" % (word, filename, i + 1)
+                    for l in searchlines[i:i + 3]: print l,
+                    print
 
     def redis_search(self, search_word, part_of=None):
         files_list = self._get_all_files_on_path(self.redis_path)
+        regexp = None
 
         if part_of in ["func", "function"]:
             search_word = " " + search_word + "("
+            #regexp = '(int|char|float|double|void)\s' + search_word + '\(.*\)'
+        elif part_of in ["var", "variable"]:
+            regexp = '(int|char|float|double|void)\s.*?(\*)?' + search_word + '.*?\;'
+        elif part_of in ["param", "parameter"]:
+            regexp = '((int|char|float|double|void)\s.*\((.*)?(\*)?' + search_word + '(.*)?\))'
 
         for files in files_list:
-            self._search_word_in_file(filename=files, word=search_word)
+            self._search_word_in_file(filename=files, word=search_word, regexp=regexp)
 
 
 def do_search(word, part_of=None):
@@ -53,7 +67,7 @@ def do_search(word, part_of=None):
 if __name__ == "__main__":
     #print "hello"
     s_word = str(sys.argv[1])
-    if sys.argv[2]:
+    if len(sys.argv)>2:
         prt_of = str(sys.argv[2])
         do_search(s_word, part_of=prt_of)
     else:
