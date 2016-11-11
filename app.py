@@ -38,6 +38,8 @@ def render_index():
 def search_keyword():
     search_word = str(request.values.get('search_word'))
     word_type = str(request.values.get('word_type'))
+    if not search_word:
+        return jsonify(create_return_msg("error", "Search failed", {"exception": "Search Word can't be empty"}))
     #print search_word, type(search_word)
     try:
         redis_search = CodeSearch()
