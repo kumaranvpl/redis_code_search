@@ -1,0 +1,8 @@
+{% extends "layout.html" %}
+{% block content %}
+    <form action="/search" method="post">
+        <label>Search Word:</label><input type="text" name="search_word"><br /><br />
+        <label>Type(optional)(var/param/func):</label><input type="text" name="word_type"><br /><br />
+        <input type="submit" value="Submit">
+      </form>
+{% endblock %}
